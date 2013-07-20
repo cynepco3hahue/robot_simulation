@@ -1,11 +1,9 @@
-
 __author__ = 'artyom'
 
 import wx
 from simulation import robot
 import math
 import help_functions
-from time import sleep
 
 
 class SimulationGUI(wx.Frame):
@@ -123,9 +121,9 @@ class SimulationGUI(wx.Frame):
                     while self.newWindow.change_timer_2.IsRunning() or \
                             self.newWindow.change_timer_3.IsRunning():
                         continue
-                    print self.newWindow.robots[0].speed
-                    self.newWindow.robots[0].setSpeed(2 * self.newWindow.robots[0].speed)
-                    print self.newWindow.robots[0].speed
+                    self.newWindow.robots[0].setChangeSpeed(2 * self.newWindow.robots[0].speed)
+                    self.newWindow.robots[1].setChangeSpeed(self.newWindow.robots[1].speed / 2)
+                    self.newWindow.robots[2].setChangeSpeed(self.newWindow.robots[2].speed / 2)
                     self.newWindow.Bind(wx.EVT_PAINT, self.newWindow.onChange1)
                     self.newWindow.change_timer_1.Start(50)
                 elif self.permutation[i] == (0, 2):
@@ -180,7 +178,7 @@ class SimulationGUI(wx.Frame):
 
     def onStop(self, event):
         if self.newWindow:
-            self.newWindow.Close()
+            self.newWindow.Destroy()
 
     def checkInput(self):
         try:
@@ -221,6 +219,7 @@ class NewWindow(wx.Frame):
     change = False
 
     def __init__(self, mainWindow, parent, given_id):
+        self.counter = 0
         self.mainWindow = mainWindow
         self.old_order = list()
         self.robotRadius = float(mainWindow.tc1.GetValue())
@@ -260,33 +259,73 @@ class NewWindow(wx.Frame):
         self.Bind(wx.EVT_TIMER, self.onTimer, id=NewWindow.ID_TIMER_CHANGE_3)
 
     def onPaint(self, event):
-        self.scenePaint()
+        self.scenePaint(-1, -1)
 
-    def scenePaint(self):
+    def scenePaint(self, robot_id_1, robot_id_2):
+        self.realRobotData()
         dc = wx.PaintDC(self)
         size_x, size_y = self.GetSizeTuple()
         dc.DrawRectangle(0, 0, size_x, size_y)
         for i in range(self.numRobots):
             eclipse_position_x = size_x / 2 - self.ellipses_size[i][0] / 2
             eclipse_position_y = size_y / 2 - self.ellipses_size[i][1] / 2
-            robot_position_x = eclipse_position_x + self.ellipses_size[i][0] / 2 + self.robots[i].pos_x
-            robot_position_y = eclipse_position_y + self.ellipses_size[i][1] / 2 + self.robots[i].pos_y
-            self.robots[i].setAngle(float(self.robots[i].speed) / float(20) + self.robots[i].angle)
-            if self.robots[i].angle >= 360:
-                self.robots[i].setAngle(0.0)
-            next_pos_x = (self.ellipses_size[i][0] / 2) * math.cos(
-                math.radians(self.robots[i].angle))
-            next_pos_y = (self.ellipses_size[i][1] / 2) * math.sin(
-                math.radians(self.robots[i].angle))
-            self.robots[i].setPosition(next_pos_x, next_pos_y)
             dc.SetPen(wx.Pen('#4c4c4c', 1, wx.SOLID))
             dc.SetBrush(wx.WHITE_BRUSH)
             dc.DrawEllipse(eclipse_position_x, eclipse_position_y, self.ellipses_size[i][0], self.ellipses_size[i][1])
+        for i in range(self.numRobots):
+            eclipse_position_x = size_x / 2 - self.ellipses_size[i][0] / 2
+            eclipse_position_y = size_y / 2 - self.ellipses_size[i][1] / 2
+            robot_position_x = eclipse_position_x + self.ellipses_size[i][0] / 2 + self.robots[i].change_pos_x
+            robot_position_y = eclipse_position_y + self.ellipses_size[i][1] / 2 + self.robots[i].change_pos_y
+            self.robots[i].setChangeAngle(float(self.robots[i].change_speed) / float(20) + self.robots[i].change_angle)
+            if self.robots[i].change_angle >= 360:
+                self.robots[i].setAngle(0.0)
+            if NewWindow.change and (i == robot_id_1 or i == robot_id_2):
+                next_pos_x = self.robots[i].change_pos_x + self.robots[i].linear_speed_x
+                next_pos_y = self.robots[i].change_pos_y + self.robots[i].linear_speed_y
+            else:
+                next_pos_x = (self.ellipses_size[i][0] / 2) * math.cos(
+                    math.radians(self.robots[i].change_angle))
+                next_pos_y = (self.ellipses_size[i][1] / 2) * math.sin(
+                    math.radians(self.robots[i].change_angle))
+            self.robots[i].setChangePosition(next_pos_x, next_pos_y)
             dc.SetBrush(self.colorList[self.robots[i].id])
             dc.DrawCircle(robot_position_x, robot_position_y, self.robotRadius)
 
     def onChange1(self, event):
-        self.scenePaint()
+        diff_pos_x = math.fabs(self.getRobotByID(0).change_pos_x - self.getRobotByID(1).change_pos_x)
+        diff_pos_y = math.fabs(self.getRobotByID(0).change_pos_y - self.getRobotByID(1).change_pos_y)
+        if diff_pos_x > 3 * self.robotRadius and diff_pos_y > 3 * self.robotRadius and not NewWindow.change:
+            print "Good position"
+            speed_x, speed_y = self.getLinearSpeed(self.getRobotByID(0).change_pos_x,
+                                                   self.getRobotByID(0).change_pos_y,
+                                                   self.getRobotByID(1).pos_x,
+                                                   self.getRobotByID(1).pos_y,
+                                                   self.getRobotByID(2))
+            self.getRobotByID(0).setLinearSpeed(speed_x, speed_y)
+            self.getRobotByID(0).setStartPos(self.getRobotByID(0).pos_x, self.getRobotByID(0).pos_y)
+            self.getRobotByID(0).setStartAngle(self.getRobotByID(0).angle)
+            speed_x, speed_y = self.getLinearSpeed(self.getRobotByID(1).change_pos_x,
+                                                   self.getRobotByID(1).change_pos_y,
+                                                   self.getRobotByID(0).pos_x,
+                                                   self.getRobotByID(0).pos_y,
+                                                   self.getRobotByID(2))
+            self.getRobotByID(1).setLinearSpeed(speed_x, speed_y)
+            self.getRobotByID(1).setStartPos(self.getRobotByID(1).pos_x, self.getRobotByID(1).pos_y)
+            self.getRobotByID(1).setStartAngle(self.getRobotByID(1).angle)
+            NewWindow.change = True
+        if math.fabs(self.getRobotByID(0).change_pos_x - self.getRobotByID(1).start_pos_x) < 1:
+            if math.fabs(self.getRobotByID(0).change_pos_y - self.getRobotByID(1).start_pos_y) < 1:
+                print "Position assigned"
+                self.backAfterChange(self.getRobotByID(0), self.getRobotByID(1))
+                tempRobot = self.robots[0]
+                self.robots[0] = self.robots[1]
+                self.robots[1] = tempRobot
+                NewWindow.change = False
+                self.change_timer_1.Stop()
+                self.timer.Start(50)
+                return
+        self.scenePaint(0, 1)
 
     def onChange2(self, event):
         self.change = True
@@ -305,3 +344,48 @@ class NewWindow(wx.Frame):
             self.onChange3(event)
         else:
             event.Skip()
+
+    def realRobotData(self):
+        for i in range(self.numRobots):
+            self.robots[i].setAngle(float(self.robots[i].speed) / float(20) + self.robots[i].angle)
+            if self.robots[i].angle >= 360:
+                self.robots[i].setAngle(0.0)
+            next_pos_x = (self.ellipses_size[i][0] / 2) * math.cos(
+                math.radians(self.robots[i].angle))
+            next_pos_y = (self.ellipses_size[i][1] / 2) * math.sin(
+                math.radians(self.robots[i].angle))
+            self.robots[i].setPosition(next_pos_x, next_pos_y)
+
+    def getTime(self, robot):
+        counter = 0
+        change_angle = robot.change_angle
+        real_angle = robot.angle
+        speed = float(robot.change_speed) / float(20)
+        while change_angle < real_angle:
+            change_angle += speed
+            if change_angle >= 360:
+                change_angle = 0.0
+            counter += 1
+        return counter
+
+    def getLinearSpeed(self, start_pos_x, start_pos_y, end_pos_x, end_pos_y, robot_not_change):
+        diff_x = end_pos_x - start_pos_x
+        diff_y = end_pos_y - start_pos_y
+        time = self.getTime(robot_not_change)
+        return diff_x / time, diff_y / time
+
+    def backAfterChange(self, robot_1, robot_2):
+        robot_1.setChangeAngle(robot_2.start_angle)
+        robot_1.setAngle(robot_2.start_angle)
+        robot_2.setChangeAngle(robot_1.start_angle)
+        robot_2.setAngle(robot_1.start_angle)
+        for i in range(self.numRobots):
+            self.getRobotByID(i).setChangeSpeed(self.speed)
+            self.getRobotByID(i).setPosition(self.robots[i].change_pos_x, self.robots[i].change_pos_y)
+            if self.getRobotByID(i) != robot_1.getId() and self.getRobotByID(i) != robot_2.getId():
+                self.getRobotByID(i).setAngle(self.getRobotByID(i).change_angle)
+
+    def getRobotByID(self, id):
+        for i in range(self.numRobots):
+            if id == self.robots[i].getId():
+                return self.robots[i]
