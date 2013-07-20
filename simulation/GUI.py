@@ -117,13 +117,21 @@ class SimulationGUI(wx.Frame):
         list_of_ids = self.checkChangeInput()
         if list_of_ids and list_of_ids != self.newWindow.old_order:
             self.permutation = help_functions.getPermutation(self.newWindow.old_order, list_of_ids)
+            self.newWindow.timer.Stop()
             for i in range(len(self.permutation)):
-                if self.permutation == (0, 1):
-                    self.newWindow.onChange1()
-                elif self.permutation == (0, 2):
-                    self.newWindow.onChange2()
+                if self.permutation[i] == (0, 1):
+                    while self.newWindow.change_timer_2.IsRunning() or \
+                            self.newWindow.change_timer_3.IsRunning():
+                        continue
+                    print self.newWindow.robots[0].speed
+                    self.newWindow.robots[0].setSpeed(2 * self.newWindow.robots[0].speed)
+                    print self.newWindow.robots[0].speed
+                    self.newWindow.Bind(wx.EVT_PAINT, self.newWindow.onChange1)
+                    self.newWindow.change_timer_1.Start(50)
+                elif self.permutation[i] == (0, 2):
+                    self.newWindow.onChange2(event)
                 else:
-                    self.newWindow.onChange3()
+                    self.newWindow.onChange3(event)
                 self.newWindow.old_order = list_of_ids
         else:
             return
@@ -246,6 +254,10 @@ class NewWindow(wx.Frame):
         self.timer.Start(50)
         self.change_timer_1 = wx.Timer(self, NewWindow.ID_TIMER_CHANGE_1)
         self.Bind(wx.EVT_TIMER, self.onTimer, id=NewWindow.ID_TIMER_CHANGE_1)
+        self.change_timer_2 = wx.Timer(self, NewWindow.ID_TIMER_CHANGE_2)
+        self.Bind(wx.EVT_TIMER, self.onTimer, id=NewWindow.ID_TIMER_CHANGE_2)
+        self.change_timer_3 = wx.Timer(self, NewWindow.ID_TIMER_CHANGE_3)
+        self.Bind(wx.EVT_TIMER, self.onTimer, id=NewWindow.ID_TIMER_CHANGE_3)
 
     def onPaint(self, event):
         self.scenePaint()
@@ -259,7 +271,7 @@ class NewWindow(wx.Frame):
             eclipse_position_y = size_y / 2 - self.ellipses_size[i][1] / 2
             robot_position_x = eclipse_position_x + self.ellipses_size[i][0] / 2 + self.robots[i].pos_x
             robot_position_y = eclipse_position_y + self.ellipses_size[i][1] / 2 + self.robots[i].pos_y
-            self.robots[i].setAngle(float(self.speed) / float(20) + self.robots[i].angle)
+            self.robots[i].setAngle(float(self.robots[i].speed) / float(20) + self.robots[i].angle)
             if self.robots[i].angle >= 360:
                 self.robots[i].setAngle(0.0)
             next_pos_x = (self.ellipses_size[i][0] / 2) * math.cos(
@@ -273,27 +285,23 @@ class NewWindow(wx.Frame):
             dc.SetBrush(self.colorList[self.robots[i].id])
             dc.DrawCircle(robot_position_x, robot_position_y, self.robotRadius)
 
-    def onChange1(self):
-        self.change = True
-        while self.change:
-            self.robots[0].setSpeed(2 * self.robots[0].speed)
-            while 1:
-                sleep(0.05)
+    def onChange1(self, event):
+        self.scenePaint()
 
-    def onChange2(self):
+    def onChange2(self, event):
         self.change = True
 
-    def onChange3(self):
+    def onChange3(self, event):
         self.change = True
 
     def onTimer(self, event):
         if event.GetId() == NewWindow.ID_TIMER_PAINT:
             self.onPaint(event)
         elif event.GetId() == NewWindow.ID_TIMER_CHANGE_1:
-            self.onChange1()
+            self.onChange1(event)
         elif event.GetId() == NewWindow.ID_TIMER_CHANGE_2:
-            self.onChange2()
+            self.onChange2(event)
         elif event.GetId() == NewWindow.ID_TIMER_CHANGE_3:
-            self.onChange3()
+            self.onChange3(event)
         else:
             event.Skip()
