@@ -112,6 +112,9 @@ class SimulationGUI(wx.Frame):
         panel.SetSizer(sizer)
 
     def onChange(self, event):
+        if self.newWindow.change:
+            self.errorMessage("Previous Change still in progress")
+            return
         list_of_ids = self.checkChangeInput()
         if list_of_ids and list_of_ids != self.newWindow.old_order:
             self.permutation = help_functions.getPermutation(self.newWindow.old_order, list_of_ids)
@@ -385,7 +388,7 @@ class NewWindow(wx.Frame):
             if self.getRobotByID(i) != robot_1.getId() and self.getRobotByID(i) != robot_2.getId():
                 self.getRobotByID(i).setAngle(self.getRobotByID(i).change_angle)
 
-    def getRobotByID(self, id):
+    def getRobotByID(self, robot_id):
         for i in range(self.numRobots):
-            if id == self.robots[i].getId():
+            if robot_id == self.robots[i].getId():
                 return self.robots[i]
