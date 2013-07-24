@@ -120,6 +120,7 @@ class SimulationGUI(wx.Frame):
             self.permutation = help_functions.getPermutation(self.newWindow.old_order, list_of_ids)
             for i in range(len(self.permutation)):
                 self.newWindow.one_permutation = self.permutation[i]
+                print self.newWindow.one_permutation
                 if self.permutation[i] == (0, 1):
                     self.newWindow.robots[0].setChangeSpeed(2 * self.newWindow.robots[0].speed)
                     self.newWindow.robots[1].setChangeSpeed(self.newWindow.robots[1].speed / 2)
@@ -356,7 +357,7 @@ class NewWindow(wx.Frame):
         change_angle = robot.change_angle
         real_angle = robot.angle
         speed = float(robot.change_speed) / float(20)
-        while change_angle < real_angle:
+        while math.fabs(change_angle - real_angle) > 0.5:
             change_angle += speed
             if change_angle >= 360:
                 change_angle = 0.0
@@ -402,6 +403,8 @@ class NewWindow(wx.Frame):
 
     def positionForChanging(self, robot_index_1, robot_index_2, robot_index_3):
         diff_angle = math.fabs(self.robots[robot_index_1].change_angle - self.robots[robot_index_2].change_angle)
+        if diff_angle > 300:
+            diff_angle = 360 - diff_angle
         if diff_angle > 40:
             NewWindow.change = True
             print "Position for changing"
