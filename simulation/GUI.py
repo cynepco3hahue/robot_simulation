@@ -4,7 +4,6 @@ import wx
 from simulation import robot
 import math
 import help_functions
-from time import sleep
 
 
 class SimulationGUI(wx.Frame):
