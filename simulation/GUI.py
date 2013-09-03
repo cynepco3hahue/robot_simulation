@@ -119,9 +119,10 @@ class SimulationGUI(wx.Frame):
         if list_of_ids and list_of_ids != self.newWindow.old_order:
             self.permutation = help_functions.getPermutation(self.newWindow.old_order, list_of_ids)
             for i in range(len(self.permutation)):
-                self.newWindow.one_permutation = self.permutation[i]
-                print self.newWindow.one_permutation
                 if self.permutation[i] == (0, 1):
+                    while NewWindow.change:
+                        continue
+                    self.newWindow.one_permutation = self.permutation[i]
                     self.newWindow.robots[0].setChangeSpeed(2 * self.newWindow.robots[0].speed)
                     self.newWindow.robots[1].setChangeSpeed(self.newWindow.robots[1].speed / 2)
                     self.newWindow.robots[2].setChangeSpeed(self.newWindow.robots[2].speed / 2)
@@ -129,6 +130,9 @@ class SimulationGUI(wx.Frame):
                     self.newWindow.timer.Stop()
                     self.newWindow.change_timer_1.Start(50)
                 elif self.permutation[i] == (0, 2):
+                    while NewWindow.change:
+                        continue
+                    self.newWindow.one_permutation = self.permutation[i]
                     self.newWindow.robots[0].setChangeSpeed(self.newWindow.robots[0].speed * 2)
                     self.newWindow.robots[1].setChangeSpeed(self.newWindow.robots[1].speed * 2)
                     self.newWindow.robots[2].setChangeSpeed(self.newWindow.robots[2].speed / 2)
@@ -136,6 +140,7 @@ class SimulationGUI(wx.Frame):
                     self.newWindow.timer.Stop()
                     self.newWindow.change_timer_2.Start(50)
                 else:
+                    self.newWindow.one_permutation = self.permutation[i]
                     self.newWindow.robots[2].setChangeSpeed(2 * self.newWindow.robots[2].speed)
                     self.newWindow.robots[1].setChangeSpeed(self.newWindow.robots[1].speed / 2)
                     self.newWindow.robots[0].setChangeSpeed(self.newWindow.robots[0].speed / 2)
@@ -143,6 +148,7 @@ class SimulationGUI(wx.Frame):
                     self.newWindow.timer.Stop()
                     self.newWindow.change_timer_3.Start(50)
                 self.newWindow.old_order = list_of_ids
+                print self.newWindow.one_permutation
         else:
             return
 
