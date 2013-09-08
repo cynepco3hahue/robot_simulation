@@ -30,7 +30,7 @@ def get_thresholded_img(im):
     '''
 
     global imghsv
-    imghsv = cv.CreateImage(cv.GetSize(im), 8, 3)
+
     cv.CvtColor(im, imghsv, cv.CV_BGR2HSV)				# Convert image from RGB to HSV
 
     # A little change here. Creates images for all colors
@@ -40,7 +40,6 @@ def get_thresholded_img(im):
     img_green = cv.CreateImage(cv.GetSize(im), 8, 1)
     img_magneta = cv.CreateImage(cv.GetSize(im), 8, 1)
 
-    img_threshold = cv.CreateImage(cv.GetSize(im), 8, 1)
     # Select a range of yellow color
     cv.InRangeS(imghsv, cv.Scalar(20, 100, 100),
                 cv.Scalar(30, 255, 255), img_yellow)
@@ -56,9 +55,6 @@ def get_thresholded_img(im):
     # Select a range of magneta color
     cv.InRangeS(imghsv, cv.Scalar(140, 100, 100),
                 cv.Scalar(160, 255, 255), img_magneta)
-    # cv.Add(img_yellow, img_blue, img_threshold)
-    cv.Add(img_threshold, img_green, img_threshold)
-    return img_threshold
 
 capture = cv.CaptureFromCAM(0)
 frame = cv.QueryFrame(capture)
@@ -111,6 +107,7 @@ while 1:
 
     #	Identifying if blue or yellow blobs and adding centroids
     #  to corresponding lists
+        print cv.Get2D(imghsv, centroid_y, centroid_x)[0]
         if 140 < cv.Get2D(imghsv, centroid_y, centroid_x)[0] < 160:
             magneta.append((centroid_x, centroid_y))
         elif 100 < cv.Get2D(imghsv, centroid_y, centroid_x)[0] < 130:
