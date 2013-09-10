@@ -14,31 +14,31 @@ def line_follower(id):
         # s.readCalibratedSensors(id, 0)
         # time.sleep(0.35)
         pos = s.readLinePosition(id)
-        time.sleep(0.2)
         print pos
         if pos != "":
             # get real value of each character
-            val = ord(pos[0]) + (ord(pos[1]) << 8) - 2000
+            val = ord(pos[0]) + (ord(pos[1]) << 8)
             print val
-            if val > 1500: # the robot is too right to the line
-                s.move(id, 12, -12)
+            if val > 2100: # the robot is too right to the line
+                s.move(id, 20, -20)
                 time.sleep(0.35)
-                s.move(id, 12, 12)
+                s.move(id, 30, 30)
+                time.sleep(0.2)
+                s.stop(id)
+            elif val < 1900:
+                s.move(id, -20, 20)
                 time.sleep(0.35)
-            elif val < 500:
-                s.move(id, -12, 12)
-                time.sleep(0.35)
-                s.move(id, 12, 12)
-                time.sleep(0.35)
+                s.move(id, 30, 30)
+                time.sleep(0.2)
+                s.stop(id)
             else:      # the robot is centered on the line
-                s.move(id, 12, 12)
-                time.sleep(0.35)
+                s.move(id, 40, 40)
+                time.sleep(0.2)
+                s.stop(id)
 
 
 def main():
     s.init('/dev/ttyUSB0')
-    # s._battary('2')
-    # time.sleep(0.5)
     line_follower('2')
     time.sleep(0.2)
     s.stop('2')
