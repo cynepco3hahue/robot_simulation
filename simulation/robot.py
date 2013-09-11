@@ -4,7 +4,7 @@ __author__ = 'artyom'
 class Robot():
     def __init__(self, robotId, speed, pos_x, pos_y, angle):
         self.id = robotId
-        self.speed = speed
+        self.speed_ = speed
         self.pos_x = pos_x
         self.pos_y = pos_y
         self.angle = angle
@@ -17,6 +17,8 @@ class Robot():
         self.start_pos_x = pos_x
         self.start_pos_y = pos_y
         self.start_angle = angle
+        self.right_wheel_speed = 0
+        self.left_wheel_speed = 0
 
     def setPosition(self, x, y):
         self.pos_x = x
@@ -51,3 +53,16 @@ class Robot():
 
     def getId(self):
         return self.id
+
+    def getRobotPos(self):
+        return self.pos_x, self.pos_y
+
+    def getPosX(self):
+        return self.pos_x
+
+    def getPosY(self):
+        return self.pos_y
+
+    def setSpeedOnWheels(self, left_wheel, right_wheel):
+        self.left_wheel_speed = left_wheel
+        self.right_wheel_speed = right_wheel

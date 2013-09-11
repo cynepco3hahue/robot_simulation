@@ -1,6 +1,10 @@
 __author__ = 'artyom'
 
 import cv
+import math
+from time import sleep
+import robo3pi as robot_api
+import simulation.robot as robotClass
 
 
 class Point:
@@ -23,10 +27,17 @@ class Point:
     def get_point(self):
         return self.x, self.y
 
+    def set_pos(self, x, y):
+        self.x = x
+        self.y = y
+
 
 class Target:
     def __init__(self):
         self.capture = cv.CaptureFromCAM(0)
+        self.robot = robotClass.Robot('1', 40, 0, 0, 0)
+        self.start_position = Point(0, 0)
+        self.start = True
         cv.NamedWindow("Target", 1)
         cv.NamedWindow("Yellow Threshold", 1)
         cv.NamedWindow("Blue Threshold", 1)
@@ -46,6 +57,7 @@ class Target:
         magneta_threshold = cv.CreateImage(cv.GetSize(hsv_img), 8, 1)
 
         while True:
+            sleep(0.4)
             #capture the image from the cam
             img = cv.QueryFrame(self.capture)
 
@@ -87,55 +99,83 @@ class Target:
 
             #initialize x and y
 
-            color_points = list()
-
-            for i in range(5):
-                color_points.append(Point(0, 0))
+            color_points = {'yellow': Point(0, 0), 'blue': Point(0, 0),
+                            'orange': Point(0, 0), 'green': Point(0, 0),
+                            'magneta': Point(0, 0)}
 
             #there can be noise in the video so ignore objects with small
             if yellow_area > 300000:
-                color_points[0].set_x(
+                color_points['yellow'].set_x(
                     int(cv.GetSpatialMoment(yellow_moment, 1, 0)/yellow_area))
-                color_points[0].set_y(
+                color_points['yellow'].set_y(
                     int(cv.GetSpatialMoment(yellow_moment, 0, 1)/yellow_area))
                 #draw circle
-                cv.Circle(img, (color_points[0].get_x(),
-                                color_points[0].get_y()), 2, (0, 255, 0), 10)
+                cv.Circle(img, (color_points['yellow'].get_x(),
+                                color_points['yellow'].get_y()),
+                          2, (0, 255, 0), 10)
 
             if blue_area > 300000:
-                color_points[1].set_x(
+                color_points['blue'].set_x(
                     int(cv.GetSpatialMoment(blue_moment, 1, 0)/blue_area))
-                color_points[1].set_y(
+                color_points['blue'].set_y(
                     int(cv.GetSpatialMoment(blue_moment, 0, 1)/blue_area))
-                cv.Circle(img, (color_points[1].get_x(),
-                                color_points[1].get_y()), 2, (0, 255, 0), 10)
+                cv.Circle(img, (color_points['blue'].get_x(),
+                                color_points['blue'].get_y()),
+                          2, (0, 255, 0), 10)
+                print color_points['blue'].get_x(), \
+                    color_points['blue'].get_y()
+                if self.start:
+                    self.start_position.set_pos(color_points['blue'].get_x(),
+                                                color_points['blue'].get_y())
+                    robot_api.move(self.robot.getId(), 25, 25)
+                    self.robot.setSpeedOnWheels(25, 25)
+                    self.start = False
+                else:
+                    self.start_position.set_pos(self.start_position.get_x(),
+                                                color_points['blue'].get_x())
+                self.robot.setPosition(color_points['blue'].get_x(),
+                                       color_points['blue'].get_y())
+                if math.fabs(self.robot.getPosX() -
+                             self.start_position.get_x()) > 200:
+                    if self.robot.getPosX() > self.start_position.get_x():
+                        robot_api.move(self.robot.getId(), 30, 25)
+                        print "Move Left"
+                    else:
+                        robot_api.move(self.robot.getId(), 25, 30)
+                        print "Move Right"
+                else:
+                    robot_api.move(self.robot.getId(), 25, 25)
 
             if orange_area > 300000:
-                color_points[2].set_x(
+                color_points['orange'].set_x(
                     int(cv.GetSpatialMoment(orange_moment, 1, 0)/orange_area))
-                color_points[2].set_y(
+                color_points['orange'].set_y(
                     int(cv.GetSpatialMoment(orange_moment, 0, 1)/orange_area))
-                cv.Circle(img, (color_points[2].get_x(),
-                                color_points[2].get_y()), 2, (0, 255, 0), 10)
+                cv.Circle(img, (color_points['orange'].get_x(),
+                                color_points['orange'].get_y()),
+                          2, (0, 255, 0), 10)
 
             if green_area > 300000:
-                color_points[3].set_x(
+                color_points['green'].set_x(
                     int(cv.GetSpatialMoment(green_moment, 1, 0)/green_area))
-                color_points[3].set_y(
+                color_points['green'].set_y(
                     int(cv.GetSpatialMoment(green_moment, 0, 1)/green_area))
-                cv.Circle(img, (color_points[3].get_x(),
-                                color_points[3].get_y()), 2, (0, 255, 0), 10)
+                cv.Circle(img, (color_points['green'].get_x(),
+                                color_points['green'].get_y()),
+                          2, (0, 255, 0), 10)
+                # self.robot.setPosition(color_points['green'].get_x(),
+                #                        color_points['green'].get_y())
 
             if magneta_area > 300000:
-                color_points[4].set_x(
+                color_points['magneta'].set_x(
                     int(cv.GetSpatialMoment(
                         magneta_moment, 1, 0)/magneta_area))
-                color_points[4].set_y(
+                color_points['magneta'].set_y(
                     int(cv.GetSpatialMoment(
                         magneta_moment, 1, 0)/magneta_area))
-                print color_points[4].get_point()
-                cv.Circle(img, (color_points[4].get_x(),
-                                color_points[4].get_y()), 2, (0, 255, 0), 10)
+                cv.Circle(img, (color_points['magneta'].get_x(),
+                                color_points['magneta'].get_y()),
+                          2, (0, 255, 0), 10)
 
             #angle = int(math.atan((y1-y2)/(x2-x1))*180/math.pi)
 
@@ -150,9 +190,11 @@ class Target:
             #Listen for ESC or ENTER key
             c = cv.WaitKey(2) % 0x100
             if c == 27 or c == 10:
+                robot_api.stop(self.robot.getId())
                 break
         cv.DestroyAllWindows()
 
 if __name__ == "__main__":
+    robot_api.init("/dev/ttyUSB0")
     t = Target()
     t.run()
