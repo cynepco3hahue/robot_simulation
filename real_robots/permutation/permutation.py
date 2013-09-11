@@ -9,6 +9,7 @@ def main():
     adjacent_permutation('1', '2')
     x_permutation('2', '3', '1')
 
+
 def adjacent_permutation(robot_id_1, robot_id_2):
     #permutaion of 1 and 2(2 and 3)
      
@@ -74,20 +75,21 @@ def adjacent_permutation(robot_id_1, robot_id_2):
     robot.stop('1')
    #########################################
 
-   def x_permutation(robot_id_1, robot_id_2, robot_id_3):
-     # switching robot_id_1 and robot_id_2, robot_id_3 is the third robot
-     s.move(robot_id_3, 40, 40)
-     sleep(0.4)
-     s.move(robot_id_1, 20, 20)
-     sleep(0.4)
-     s.move(robot_id_2, 20, 20)
-     sleep(0.4)
-     s.move(robot_id_1, 50, -38)
-     sleep(0.4)
-     s.stop(robot_id_1)
-     s.move(robot_id_2, -38, 50)
-     sleep(0.4)
-     s.stop(robot_id_2)
+
+def x_permutation(robot_id_1, robot_id_2, robot_id_3):
+    # switching robot_id_1 and robot_id_2, robot_id_3 is the third robot
+    robot.move(robot_id_3, 40, 40)
+    sleep(0.4)
+    robot.move(robot_id_1, 20, 20)
+    sleep(0.4)
+    robot.move(robot_id_2, 20, 20)
+    sleep(0.4)
+    robot.move(robot_id_1, 50, -38)
+    sleep(0.4)
+    robot.stop(robot_id_1)
+    robot.move(robot_id_2, -38, 50)
+    sleep(0.4)
+    robot.stop(robot_id_2)
      
 
     ##########################3 and 5(1 and 3)######################
