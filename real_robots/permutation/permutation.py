@@ -77,6 +77,7 @@ def adjacent_permutation(robot_id_1, robot_id_2):
 
 
 def x_permutation(robot_id_1, robot_id_2, robot_id_3):
+    # used for switching two robots on the same horizontal line
     # switching robot_id_1 and robot_id_2, robot_id_3 is the third robot
     robot.move(robot_id_3, 40, 40)
     sleep(0.4)
