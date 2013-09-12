@@ -188,7 +188,3 @@ def x_permutation(robot_id_1, robot_id_2, robot_id_3):
 
 if __name__ == '__main__':
     main()
-
-
-if __name__ == '__main__':
-    main()
