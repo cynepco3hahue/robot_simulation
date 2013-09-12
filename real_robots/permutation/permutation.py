@@ -5,8 +5,8 @@ import robo3pi as robot
 
 
 def main():
-    robot.init('/dev/ttyUSB0')
-    adjacent_permutation('1', '2')
+    robot.init('com4')
+    #adjacent_permutation('1', '2')
     x_permutation('2', '3', '1')
 
 
@@ -79,18 +79,55 @@ def adjacent_permutation(robot_id_1, robot_id_2):
 def x_permutation(robot_id_1, robot_id_2, robot_id_3):
     # used for switching two robots on the same horizontal line
     # switching robot_id_1 and robot_id_2, robot_id_3 is the third robot
-    robot.move(robot_id_3, 40, 40)
+    robot.addToGroup(robot_id_1, '7')
     sleep(0.4)
-    robot.move(robot_id_1, 20, 20)
+    robot.addToGroup(robot_id_2, '7')
     sleep(0.4)
-    robot.move(robot_id_2, 20, 20)
+	
+    robot.move(robot_id_3, 20, 20)
+    sleep(0.4)
+    robot.move('7', 20, 20)
+    sleep(0.4)
+    robot.stop('7')
     sleep(0.4)
     robot.move(robot_id_1, 50, -38)
-    sleep(0.4)
+    sleep(0.2)
     robot.stop(robot_id_1)
-    robot.move(robot_id_2, -38, 50)
     sleep(0.4)
+    robot.move(robot_id_2, -38, 50)
+    sleep(0.2)
     robot.stop(robot_id_2)
+    sleep(0.4)
+    robot.move(robot_id_1, 40, 40)
+    sleep(4.1)
+    robot.move(robot_id_1, -38, 50)
+    sleep(0.2)
+    robot.stop(robot_id_1)
+    sleep(0.4)
+    robot.move(robot_id_2, 40, 40)
+    sleep(4.1)
+    robot.move(robot_id_2, 50, -38)
+    sleep(0.2)
+    robot.stop(robot_id_2)
+    sleep(0.4)
+    robot.move(robot_id_3, 20, 20)
+    sleep(0.3)
+	
+    robot.move('7', 40, 40)
+    sleep(2)
+    robot.stop('7')
+    sleep(0.5)
+    robot.stop(robot_id_3)
+	
+    robot.addToGroup(robot_id_1, '8')
+    sleep(0.4)
+    robot.addToGroup(robot_id_2, '8')
+    sleep(0.4)
+    robot.addToGroup(robot_id_3, '8')
+    sleep(0.4)
+    robot.move('8', 40, 40)
+    sleep(3)
+    robot.stop('8')
      
 
     ##########################3 and 5(1 and 3)######################
@@ -147,6 +184,10 @@ def x_permutation(robot_id_1, robot_id_2, robot_id_3):
     #sleep(2)
     #robot.stop('2')
 ##########################################################################
+
+
+if __name__ == '__main__':
+    main()
 
 
 if __name__ == '__main__':
