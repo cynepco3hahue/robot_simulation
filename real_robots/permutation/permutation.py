@@ -10,12 +10,14 @@ def main():
     sleep(0.2)
     x_permutation('2', '4', '1')
 
+
 def turn_robot(id, left_speed, right_speed):
     robot.move(id, left_speed, right_speed)
     sleep(0.4)
     robot.stop(id)
     sleep(0.2)
-	
+
+
 def adjacent_permutation(robot_id_1, robot_id_2, robot_id_3):
     #permutaion of robot_id_1 and robot_id_2
     robot.move(robot_id_3, 20, 20)
@@ -32,7 +34,6 @@ def adjacent_permutation(robot_id_1, robot_id_2, robot_id_3):
     robot.stop(robot_id_2)
     sleep(0.2)
 
-    
     # turn the robots back to the original shape
     turn_robot(robot_id_1, -50, 38)
     turn_robot(robot_id_2, 38, -50)
