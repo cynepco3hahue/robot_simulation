@@ -11,18 +11,20 @@ import time
 
 global is_on_the_curve
 
+
 def follow_the_line(id):
+    id_str = str(id)
+
     def make_n_turns(n):
         for i in range(n):
-			if i == 0:
-				is_on_the_curve[id] = 1 
-            s.move(id, -20, 20)
-            time.sleep(0.35)
-            s.move(id, 20, 20)
-            time.sleep(0.8)
-			if i == n - 1:
-				is_on_the_curve[id] = 0
-				
+            if i == 0:
+                is_on_the_curve[id] = 1
+            s.move(id_str, -20, 20)
+            time.sleep(0.2)
+            s.move(id_str, 20, 20)
+            time.sleep(1.5)
+            if i == n - 1:
+                is_on_the_curve[id] = 0
     # to be used later on
     def fix_location(id):
         pos = s.readLinePosition(id)
@@ -49,38 +51,44 @@ def follow_the_line(id):
                 s.move(id, 20, 20)
                 time.sleep(0.3)
 
-    s.init('com4')
-	is_on_the_curve = [0*i for i in range(5)] # at first, all robots are on the straight line
+    # at first, all robots are on the straight line
+    is_on_the_curve = [0*i for i in range(5)]
     #s.readCalibratedSensors(id, 1)
     #time.sleep(0.35)
     start = time.time()
-    while time.time() - start < 60: # for one minute
-        s.move(id, 20, 20)
-        time.sleep(5)
-		make_n_turns(id + 6)
-        s.move(id, -20, 20)
+    # for one minute
+    while time.time() - start < 60:
+        s.move(id_str, 20, 20)
+        if id == 1:
+            time.sleep(9.5)
+        elif id == 4 or id == 2:
+            time.sleep(8)
+        if id == 1:
+            make_n_turns(7)
+        if id == 4:
+            make_n_turns(8)
+        s.move(id_str, -20, 20)
         time.sleep(0.7)
-        s.move(id, 20, 20)
-        #fix_location(id)
-        time.sleep(1.7)
-        s.move(id, -20, 20)
-        time.sleep(0.5)
-    s.stop(id)
+    s.stop(id_str)
 
 
 def main():
-# The first robot to start moving is the leader of the flock (assuming the identity permutation),
-# then the ones which are behind him, and finally those behind them. After one second all robots will be moving.
-# Each of the robots is given different timings and set of orders according to its position with respect of the rest of the flock.
-	follow_the_line(3)
-	time.sleep(0.2)
-	follow_the_line(2)
-	time.sleep(0.2)
-	follow_the_line(4)
-	time.sleep(0.2)
-	follow_the_line(1)
-	time.sleep(0.2)
-	follow_the_line(5)
-	time.sleep(0.2)
-	
+# The first robot to start moving is the leader of the flock
+# (assuming the identity permutation),
+# then the ones which are behind him, and finally those behind them.
+# After one second all robots will be moving.
+# Each of the robots is given different timings and set of orders according
+#  to its position with respect of the rest of the flock.
+    s.init('/dev/ttyUSB0')
+    # follow_the_line(3)
+    # time.sleep(0.4)
+    # follow_the_line(2)
+    # time.sleep(0.4)
+    follow_the_line(4)
+    time.sleep(0.4)
+    #follow_the_line(1)
+    #time.sleep(0.4)
+    # follow_the_line(5)
+    # time.sleep(0.4)
+
 main()

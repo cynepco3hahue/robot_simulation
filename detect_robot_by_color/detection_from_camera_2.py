@@ -34,7 +34,7 @@ class Point:
 
 class Target:
     def __init__(self):
-        self.capture = cv.CaptureFromCAM(1)
+        self.capture = cv.CaptureFromCAM(0)
         self.robot = robotClass.Robot('3', 40, 0, 0, 0)
         self.start_position = Point(0, 0)
         self.start = True
@@ -118,7 +118,7 @@ class Target:
                         (255, 255, 0), 2)
 
             if blue_area > 200000:
-                sleep(0.4)
+                # sleep(0.4)
                 color_points['blue'].set_x(
                     int(cv.GetSpatialMoment(blue_moment, 1, 0)/blue_area))
                 color_points['blue'].set_y(
@@ -130,31 +130,31 @@ class Target:
                         (color_points['blue'].get_x(),
                          color_points['blue'].get_y()),
                         (255, 0, 0), 2)
-                print color_points['blue'].get_x(), \
-                    color_points['blue'].get_y()
-                if self.start:
-                    self.start_position.set_pos(color_points['blue'].get_x(),
-                                                color_points['blue'].get_y())
-                    robot_api.move(self.robot.getId(), 25, 25)
-                    self.robot.setSpeedOnWheels(25, 25)
-                    self.start = False
-                else:
-                    self.start_position.set_pos(self.start_position.get_x(),
-                                                color_points['blue'].get_y())
-                self.robot.setPosition(color_points['blue'].get_x(),
-                                       color_points['blue'].get_y())
-                print "Real:", self.start_position.get_point()
-                print "Robot:", self.robot.getRobotPos()
-                if math.fabs(self.robot.getPosX() -
-                             self.start_position.get_x()) > 80:
-                    if self.robot.getPosX() > self.start_position.get_x():
-                        robot_api.move(self.robot.getId(), 30, 25)
-                        print "Move Left"
-                    else:
-                        robot_api.move(self.robot.getId(), 25, 30)
-                        print "Move Right"
-                else:
-                    robot_api.move(self.robot.getId(), 25, 25)
+                # print color_points['blue'].get_x(), \
+                #     color_points['blue'].get_y()
+                # if self.start:
+                #     self.start_position.set_pos(color_points['blue'].get_x(),
+                #                                 color_points['blue'].get_y())
+                #     robot_api.move(self.robot.getId(), 25, 25)
+                #     self.robot.setSpeedOnWheels(25, 25)
+                #     self.start = False
+                # else:
+                #     self.start_position.set_pos(self.start_position.get_x(),
+                #                                 color_points['blue'].get_y())
+                # self.robot.setPosition(color_points['blue'].get_x(),
+                #                        color_points['blue'].get_y())
+                # print "Real:", self.start_position.get_point()
+                # print "Robot:", self.robot.getRobotPos()
+                # if math.fabs(self.robot.getPosX() -
+                #              self.start_position.get_x()) > 80:
+                #     if self.robot.getPosX() > self.start_position.get_x():
+                #         robot_api.move(self.robot.getId(), 30, 25)
+                #         print "Move Left"
+                #     else:
+                #         robot_api.move(self.robot.getId(), 25, 30)
+                #         print "Move Right"
+                # else:
+                #     robot_api.move(self.robot.getId(), 25, 25)
 
             if orange_area > 300000:
                 color_points['orange'].set_x(
@@ -219,11 +219,11 @@ class Target:
             #Listen for ESC or ENTER key
             c = cv.WaitKey(2) % 0x100
             if c == 27 or c == 10:
-                robot_api.stop(self.robot.getId())
+                # robot_api.stop(self.robot.getId())
                 break
         cv.DestroyAllWindows()
 
 if __name__ == "__main__":
-    robot_api.init("/dev/ttyUSB0")
+    # robot_api.init("/dev/ttyUSB0")
     t = Target()
     t.run()
